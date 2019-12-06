@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="my.app.dao.QuestionDao">
+
+    <resultMap id="questionList" type="my.app.bean.Question">
+        <id property="questionId" column="question_id"/>
+        <result property="title" column="title"/>
+        <result property="scanedCount" column="scaned_count"/>
+        <result property="createTime" column="create_time"/>
+        <result property="userId" column="user_id"/>
+    </resultMap>
+
+    <select id="findAllQuestion" resultMap="questionList">
+        select * from question
+    </select>
+    
+    <resultMap id="answer" type="my.app.bean.Answer">
+
+        <result property="content" column="content"/>
+        <result property="likeCount" column="like_count"/>
+        <result property="createTime" column="create_time"/>
+        <!--<result property="questionId" column="question_id"/>-->
+        <result property="userId" column="user_id"/>
+    </resultMap>
+
+    <resultMap id="question" type="my.app.bean.Question">
+        <id property="questionId" column="question_id"/>
+        <result property="title" column="title"/>
+        <collection property="answerList" resultMap="answer" javaType="java.util.List">
+            <id property="answerId" column="answer_id"/>
+        </collection>
+    </resultMap>
+
+    <select id="findOneById" resultMap="question">
+        select a.content,a.like_count,a.create_time,a.user_id,q.title,q.question_id,a.answer_id
+        from answer a left join question q
+        on a.question_id=q.question_id
+        where q.question_id=#{questionId}
+    </select>
+
+    <insert id="addQuestion" parameterType="my.app.bean.Question">
+        insert into question(title,user_id)
+        values (#{title},#{userId})
+    </insert>
+
+    <select id="findUsersById" resultType="my.app.bean.Question">
+        select * from question where user_id=#{userId}
+
+    </select>
+</mapper>

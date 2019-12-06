@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="my.app.dao.UserDao">
+
+    <!--实现一个查询方法-->
+
+    <resultMap id="userList" type="my.app.bean.User">
+        <id property="userId" column="user_id"/>
+        <result property="username" column="username"/>
+        <collection property="answerList" resultMap="answerList"/>
+    </resultMap>
+
+    <resultMap id="answerList" type="my.app.bean.Answer">
+
+        <id property="answerId" column="answer_id"/>
+        <result property="content" column="content"/>
+        <association property="question" javaType="my.app.bean.Question">
+            <result property="title" column="title"/>
+        </association>
+    </resultMap>
+
+    <resultMap id="user" type="my.app.bean.User">
+
+        <id property="userId" column="user_id"/>
+        <result property="username" column="username"/>
+        <result property="password" column="password"/>
+        <result property="simpleDesc" column="simple_desc"/>
+        <result property="likeCount" column="like_count"/>
+
+    </resultMap>
+
+    <select id="findById" resultMap="user">
+
+        select user_id,username,password,gender,simple_desc,like_count
+        from user where username=#{username} and password=#{password}
+
+        <!--<where>-->
+            <!--<if test="username!=null and username!=''">-->
+                <!--and  username=#{username}-->
+            <!--</if>-->
+            <!--<if test="password!=null and password!=''">-->
+                <!--and password=#{password}-->
+            <!--</if>-->
+
+        <!--</where>-->
+
+    </select>
+
+    <select id="findAllAnswer" resultMap="answerList">
+
+      select u.username,
+      a.answer_id,
+      q.question_id,
+      u.follower_count,
+      u.following_count,
+      a.content,
+      q.title
+      from
+       answer a LEFT JOIN question q
+       ON a.question_id = q.question_id
+       LEFT JOIN user u
+      ON u.user_id=a.user_id
+    </select>
+
+    <insert id="insert" parameterType="my.app.bean.User">
+        insert into user(email,username,password,gender,
+        simple_desc,birthday,position,create_time)
+        values (#{email},#{username},#{password},#{gender},
+        #{simpleDesc},#{birthday,jdbcType=DATE},
+        #{position},#{createTime,jdbcType=DATE})
+    </insert>
+
+
+</mapper>
